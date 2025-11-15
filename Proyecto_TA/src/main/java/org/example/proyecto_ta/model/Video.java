@@ -1,7 +1,6 @@
 package org.example.proyecto_ta.model;
 
 import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -23,25 +22,27 @@ public class Video {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_camara", nullable = false)
-    private Camara camara;
+    private Camara camara; // apunta a Camara.id (String)
 
+    @Column(length = 100)
     private String titulo;
 
     @Lob
-    @Column(nullable = false , columnDefinition = "LONGBLOB")
+    @Column(nullable = false, columnDefinition = "LONGBLOB")
     private byte[] video;
 
-    @Column(name = "tipo_mime")
+    @Column(name = "tipo_mime", length = 50)
     private String tipoMime;
 
-    @Column(name = "nombre_archivo")
+    @Column(name = "nombre_archivo", length = 255)
     private String nombreArchivo;
 
     @Column(name = "fecha_grabacion", insertable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime fechaGrabacion;
 
-    public Video(){}
+    public Video() {
+    }
 
     public Video(Long id, Camara camara, String titulo, byte[] video, String tipoMime, String nombreArchivo, LocalDateTime fechaGrabacion) {
         this.id = id;
@@ -52,8 +53,6 @@ public class Video {
         this.nombreArchivo = nombreArchivo;
         this.fechaGrabacion = fechaGrabacion;
     }
-
-
 
     public Long getId() {
         return id;
@@ -110,7 +109,4 @@ public class Video {
     public void setFechaGrabacion(LocalDateTime fechaGrabacion) {
         this.fechaGrabacion = fechaGrabacion;
     }
-
-
-
 }

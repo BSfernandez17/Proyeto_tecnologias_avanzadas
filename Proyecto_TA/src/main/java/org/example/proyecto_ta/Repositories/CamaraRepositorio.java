@@ -6,9 +6,11 @@ import java.util.Optional;
 import org.example.proyecto_ta.model.Camara;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+public interface CamaraRepositorio extends JpaRepository<Camara, String> {
 
-public interface CamaraRepositorio extends JpaRepository<Camara, Integer>{
+    // Obtener todas las cámaras de un usuario
     List<Camara> findByUsuario_Id(int idUsuario);
-    Optional<Camara> findByUsuarioIdAndIp(int idUsuario, String ip);
 
+    // Obtener cámara por usuario y ID de dispositivo
+    Optional<Camara> findByUsuarioIdAndId(int idUsuario, String idCamara);
 }

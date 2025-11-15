@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 public interface VideoRepositorio extends JpaRepository<Video,Integer> {
-    List<Video> findByCamara_Id(int id);
+    List<Video> findByCamara_Id(String id);
 
     Video findById(int id);
 }

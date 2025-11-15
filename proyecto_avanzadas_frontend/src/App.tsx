@@ -11,6 +11,7 @@ function App() {
         <Route path='ReportesUsuario' element={<ReportesUsuario/>}></Route>
         <Route path='usuarios/registrar' element={<RegistroUsuario/>}></Route>
         <Route path='usuarios/editar/:id' element={<EditarUsuario/>}></Route>
+        <Route path='usuarios/VerReporte/:id' element={<ReportesUsuario/>}></Route>
     </Routes>
     </>
   )

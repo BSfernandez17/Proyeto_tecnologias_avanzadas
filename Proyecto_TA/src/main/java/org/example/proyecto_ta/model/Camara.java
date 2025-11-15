@@ -3,51 +3,48 @@ package org.example.proyecto_ta.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
 
 @Entity
 @Table(name="camara")
 public class Camara {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Column(length = 100)
+    private String id;  // ADB Device ID
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)
     private Usuario usuario;
+
     @Column(nullable = false, length = 50)
     private String nombre;
-    @Column(nullable = false, length = 45)
-    private String ip;
+
     @Column(length = 100)
-    private String ubicacion;
+    private String serverHost;
+
     @Column
-    private Boolean estado;
+    private Integer serverPort;
 
-    public Camara(){
-
+    public Camara() {
     }
 
-    public Camara(int id, Usuario usuario, String nombre, String ip, String ubicacion, Boolean estado) {
+    public Camara(String id, Usuario usuario, String nombre, String serverHost, Integer serverPort) {
         this.id = id;
         this.usuario = usuario;
         this.nombre = nombre;
-        this.ip = ip;
-        this.ubicacion = ubicacion;
-        this.estado = estado;
+        this.serverHost = serverHost;
+        this.serverPort = serverPort;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -67,31 +64,19 @@ public class Camara {
         this.nombre = nombre;
     }
 
-    public String getIp() {
-        return ip;
+    public String getServerHost() {
+        return serverHost;
     }
 
-    public void setIp(String ip) {
-        this.ip = ip;
+    public void setServerHost(String serverHost) {
+        this.serverHost = serverHost;
     }
 
-    public String getUbicacion() {
-        return ubicacion;
+    public Integer getServerPort() {
+        return serverPort;
     }
 
-    public void setUbicacion(String ubicacion) {
-        this.ubicacion = ubicacion;
+    public void setServerPort(Integer serverPort) {
+        this.serverPort = serverPort;
     }
-
-    public Boolean getEstado() {
-        return estado;
-    }
-
-    public void setEstado(Boolean estado) {
-        this.estado = estado;
-    }
-
-
-
-
 }

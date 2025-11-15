@@ -113,6 +113,13 @@ export const ListaUsuarios = () => {
                     {usuario.status ? "activo" : "pendiente"}
                   </td>
                   <td className="px-4 py-2 border-b text-sm text-gray-700">
+                    <Link 
+                    to={`/usuarios/VerReporte/${usuario.id}`}
+                    className="inline-flex items-center px-3 py-2 rounded-md bg-yellow-500 text-white text-sm hover:bg-green-600">
+                      Ver Reporte
+                    </Link>
+                  </td>
+                  <td className="px-4 py-2 border-b text-sm text-gray-700">
                     <Link
                       to={`/usuarios/editar/${usuario.id}`}
                       className="inline-flex items-center px-3 py-2 rounded-md bg-yellow-500 text-white text-sm hover:bg-yellow-600"

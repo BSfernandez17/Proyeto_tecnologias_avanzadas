@@ -1,11 +1,13 @@
 package org.example.proyecto_ta.Services;
+
 import org.example.proyecto_ta.Repositories.ImagenRepositorio;
 import org.example.proyecto_ta.model.Camara;
 import org.example.proyecto_ta.model.Imagen;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ImagenService {
@@ -18,18 +20,22 @@ public class ImagenService {
         this.camaraServicio = camaraServicio;
     }
 
+    // Guardar imagen
     public void guardarImagen(Imagen imagen){
         imagenRepositorio.save(imagen);
     }
 
-    public List<Imagen> obtenerPorCamaraId(int id){
-        return imagenRepositorio.findByCamara_Id(id);
+    // Obtener imágenes por ID de cámara (ADB ID)
+    public List<Imagen> obtenerPorCamaraId(String idCamara){
+        return imagenRepositorio.findByCamara_Id(idCamara);
     }
 
-    public void eliminarPorId(int id){
+    // Eliminar imagen por ID
+    public void eliminarPorId(Integer id){
         imagenRepositorio.deleteById(id);
     }
 
+    // Obtener todas las imágenes de un usuario
     public List<Imagen> obtenerImagenPorUsuario(int usuarioId) {
         List<Camara> camaras = camaraServicio.obtenerCamarasPorUsuario(usuarioId);
         List<Imagen> imagenes = new ArrayList<>();
@@ -39,7 +45,8 @@ public class ImagenService {
         return imagenes;
     }
 
-    public Imagen obtenerImagenPorId(int id) {
+    // Obtener imagen por ID
+    public Optional<Imagen> obtenerImagenPorId(Integer id) {
         return imagenRepositorio.findById(id);
     }
 }

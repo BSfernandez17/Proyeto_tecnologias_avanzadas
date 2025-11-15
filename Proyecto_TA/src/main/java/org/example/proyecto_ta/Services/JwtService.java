@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.example.proyecto_ta.model.Usuario;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -23,16 +24,23 @@ public class JwtService {
         return getToken(new HashMap<>(), user);
     }
 
-    private String getToken(Map<String,Object> extraClaims, UserDetails user) {
-        return Jwts
-                .builder()
+    private String getToken(Map<String, Object> extraClaims, UserDetails user) {
+
+        Usuario usuario = (Usuario) user; // CAST
+
+        extraClaims.put("nombre", usuario.getNombre());
+        extraClaims.put("rol", usuario.getRol().name());
+        extraClaims.put("status", usuario.getStatus());
+
+        return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*24))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 horas
                 .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
 
     private Key getKey() {
         byte[] keyBytes=Decoders.BASE64.decode(SECRET_KEY);

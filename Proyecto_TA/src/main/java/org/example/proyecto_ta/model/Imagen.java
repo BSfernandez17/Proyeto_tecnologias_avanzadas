@@ -2,15 +2,15 @@ package org.example.proyecto_ta.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import java.sql.Timestamp;
-
 
 @Entity
 @Table(name = "imagen")
@@ -20,9 +20,9 @@ public class Imagen {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_camara", nullable = false)
-    private Camara camara;
+    private Camara camara;  // referencia a Camara.id (String)
 
     @Column(length = 100)
     private String titulo;
@@ -40,11 +40,11 @@ public class Imagen {
     @Column(name = "nombre_archivo", length = 255)
     private String nombreArchivo;
 
-    @Column(name = "fecha_captura", insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "fecha_captura", insertable = false, updatable = false,
+            columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp fechaCaptura;
 
-    public Imagen(){
-
+    public Imagen() {
     }
 
     public Imagen(Integer id, Camara camara, String titulo, byte[] imagen, String filtro, String tipoMime, String nombreArchivo, Timestamp fechaCaptura) {
@@ -57,9 +57,6 @@ public class Imagen {
         this.nombreArchivo = nombreArchivo;
         this.fechaCaptura = fechaCaptura;
     }
-
-
-
 
     public Integer getId() {
         return id;
@@ -125,4 +122,3 @@ public class Imagen {
         this.fechaCaptura = fechaCaptura;
     }
 }
-

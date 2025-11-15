@@ -2,6 +2,7 @@ package org.example.proyecto_ta.Services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.example.proyecto_ta.Repositories.VideoRepositorio;
 import org.example.proyecto_ta.model.Camara;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class VideoService {
 
-
     private final VideoRepositorio videoRepositorio;
     private final CamaraService camaraServicio;
 
@@ -20,18 +20,22 @@ public class VideoService {
         this.camaraServicio = camaraServicio;
     }
 
+    // Guardar video
     public void guardarVideo(Video video) {
         videoRepositorio.save(video);
     }
 
-    public List<Video> obtenerVideosPorCamaraId(int id){
-        return videoRepositorio.findByCamara_Id(id);
+    // Obtener videos por ID de cámara (ADB Device ID)
+    public List<Video> obtenerVideosPorCamaraId(String idCamara){
+        return videoRepositorio.findByCamara_Id(idCamara);
     }
 
-    public void eliminarPorId(int id){
+    // Eliminar video por ID
+    public void eliminarPorId(Integer id){
         videoRepositorio.deleteById(id);
     }
 
+    // Obtener todos los videos de un usuario
     public List<Video> obtenerVideosPorUsuario(int usuarioId) {
         List<Camara> camaras = camaraServicio.obtenerCamarasPorUsuario(usuarioId);
         List<Video> videos = new ArrayList<>();
@@ -41,7 +45,8 @@ public class VideoService {
         return videos;
     }
 
-    public Video obtenerVideoPorId(int id) {
+    // Obtener video por ID
+    public Optional<Video> obtenerVideoPorId(Integer id) {
         return videoRepositorio.findById(id);
     }
 }

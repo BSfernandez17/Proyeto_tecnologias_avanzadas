@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 public interface ImagenRepositorio extends JpaRepository<Imagen, Integer>{
-    List<Imagen> findByCamara_Id(int id);
+    List<Imagen> findByCamara_Id(String id);
     Imagen findById(int id);
 }

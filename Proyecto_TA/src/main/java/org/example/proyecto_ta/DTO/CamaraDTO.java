@@ -1,32 +1,30 @@
 package org.example.proyecto_ta.DTO;
 
 public class CamaraDTO {
-    private int id;
+
+    private String id;           // ADB Device ID
     private UsuarioDTO usuario;
     private String nombre;
-    private String ip;
-    private String ubicacion;
-    private Boolean estado;
+    private String serverHost;
+    private Integer serverPort;
 
+    public CamaraDTO() {
+    }
 
-    public CamaraDTO() {}
-
-
-    public CamaraDTO(int id, UsuarioDTO usuario, String nombre, String ip, String ubicacion, Boolean estado) {
+    public CamaraDTO(String id, UsuarioDTO usuario, String nombre, String serverHost, Integer serverPort) {
         this.id = id;
         this.usuario = usuario;
         this.nombre = nombre;
-        this.ip = ip;
-        this.ubicacion = ubicacion;
-        this.estado = estado;
+        this.serverHost = serverHost;
+        this.serverPort = serverPort;
     }
 
-    public int getId() {
+    // Getters y Setters
+    public String getId() {
         return id;
     }
 
-
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -46,31 +44,19 @@ public class CamaraDTO {
         this.nombre = nombre;
     }
 
-    public String getIp() {
-        return ip;
+    public String getServerHost() {
+        return serverHost;
     }
 
-    public void setIp(String ip) {
-        this.ip = ip;
+    public void setServerHost(String serverHost) {
+        this.serverHost = serverHost;
     }
 
-    public String getUbicacion() {
-        return ubicacion;
+    public Integer getServerPort() {
+        return serverPort;
     }
 
-    public void setUbicacion(String ubicacion) {
-        this.ubicacion = ubicacion;
+    public void setServerPort(Integer serverPort) {
+        this.serverPort = serverPort;
     }
-
-    public Boolean getEstado() {
-        return estado;
-    }
-
-    public void setEstado(Boolean estado) {
-        this.estado = estado;
-    }
-
-
-
 }
-
