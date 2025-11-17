@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>Proyecto_TA_Cliente</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <!-- Use release to ensure consistent compilation target across JDKs -->
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <marvin.jar.path>C:/Users/alexi/Downloads/Proyeto_tecnologias_avanzadas-main/Proyecto_TA_Cliente/marvin/marvin_1.5.5.jar</marvin.jar.path>
+    </properties>
+
+    <dependencies>
+        <!-- JSON processing -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20231013</version>
+        </dependency>
+        
+        <!-- Gson for REST API serialization (SOLO UNA VERSIÓN) -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
+        
+        <!-- Marvin image processing (local jar) CON RUTA ABSOLUTA -->
+        <dependency>
+            <groupId>org.marvinproject</groupId>
+            <artifactId>marvin</artifactId>
+            <version>1.5.5</version>
+            <scope>system</scope>
+            <systemPath>${marvin.jar.path}</systemPath>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <!-- Use the release flag supported by modern JDKs to set both source and target consistently -->
+                    <release>21</release>
+                    <compilerArgs>
+                        <!-- Add compiler args here if needed (for example: enable-preview) -->
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <!-- Minimizing the shaded JAR may process class files and fail on newer Java major versions.
+                        Disable minimizeJar to avoid Unsupported class file major version 65 errors when building with JDK21. -->
+                    <minimizeJar>false</minimizeJar>
+                    <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-shaded.jar</outputFile>
+                    <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <mainClass>org.example.Main</mainClass>
+                        </transformer>
+                    </transformers>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
