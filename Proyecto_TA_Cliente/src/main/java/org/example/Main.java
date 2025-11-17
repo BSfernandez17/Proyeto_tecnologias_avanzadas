@@ -1,10 +1,15 @@
 package org.example;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import org.example.View.LoginView;
+import org.example.proyecto_ta.TCPServer;
+
 public class Main {
     public static void main(String[] args) {
+        // Iniciar servidor TCP para recibir y retransmitir stream H.264
+        TCPServer server = new TCPServer();
+        server.start();
+
         // Iniciar la vista de login
-        new org.example.View.LoginView();
+        new LoginView();
     }
 }

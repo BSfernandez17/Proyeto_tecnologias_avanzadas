@@ -1,6 +1,7 @@
 package org.example.proyecto_ta;
 
 import jakarta.annotation.PostConstruct;
+import org.example.proyecto_ta.Services.VideoService;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -11,72 +12,97 @@ import java.nio.file.*;
 @Component
 public class TCPServer {
 
-    private static final int PORT = 9090;
+    private static final int PORT = 9000;
+
+    private final VideoService videoService;
+
+    public TCPServer(VideoService videoService){
+        this.videoService = videoService;
+    }
 
     @PostConstruct
-    public void start() {
-        new Thread(this::runServer, "TCPServer-Thread").start();
+    public void init() {
+        new Thread(this::startServer, "TCP-Video-Server").start();
     }
 
-    private void runServer() {
-        try {
-            Path videosDir = Paths.get("videos");
-            Path framesDir = Paths.get("frames");
-            if (!Files.exists(videosDir)) Files.createDirectories(videosDir);
-            if (!Files.exists(framesDir)) Files.createDirectories(framesDir);
-
-            ServerSocket serverSocket = new ServerSocket(PORT);
-            System.out.println("Servidor TCP escuchando en puerto " + PORT);
+    private void startServer() {
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            System.out.println("Servidor TCP esperando streams en puerto " + PORT);
 
             while (true) {
-                Socket client = serverSocket.accept();
-                new Thread(() -> handleConnection(client, videosDir, framesDir)).start();
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-    private void handleConnection(Socket socket, Path videosDir, Path framesDir) {
-        try (DataInputStream dis = new DataInputStream(socket.getInputStream())) {
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("Cliente conectado: " + clientSocket.getInetAddress());
 
-            // 1. Leer encabezado CAMERA|FILENAME
-            String header = dis.readUTF();
-            String[] parts = header.split("\\|");
-
-            String cameraId = parts[0].trim();
-            String filename = parts[1].trim();
-
-            System.out.println("Recibiendo video de camera=" + cameraId + " -> " + filename);
-
-            // 2. Crear directorio por cámara
-            Path cameraDir = videosDir.resolve(cameraId);
-            if (!Files.exists(cameraDir)) Files.createDirectories(cameraDir);
-
-            // 3. Ruta final
-            Path outputFile = cameraDir.resolve(filename);
-
-            // 4. Leer tamaño y bytes
-            long size = dis.readLong();
-
-            try (OutputStream os = Files.newOutputStream(outputFile)) {
-                byte[] buffer = new byte[8192];
-                long read = 0;
-
-                while (read < size) {
-                    int n = dis.read(buffer);
-                    if (n == -1) break;
-                    os.write(buffer, 0, n);
-                    read += n;
-                }
+                new Thread(() -> handleClient(clientSocket)).start();
             }
 
-            System.out.println("Video guardado: " + outputFile);
-
-            // Aquí luego agregamos: extraer frames y guardarlos en framesDir
-
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    private void handleClient(Socket socket) {
+        String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+        try (InputStream rawIn = socket.getInputStream()) {
+            // read possible header line terminated by '\n' (up to 1024 bytes)
+            BufferedInputStream bin = new BufferedInputStream(rawIn);
+            bin.mark(2048);
+            ByteArrayOutputStream headerBuf = new ByteArrayOutputStream();
+            int b;
+            boolean hasHeader = false;
+            while ((b = bin.read()) != -1) {
+                headerBuf.write(b);
+                if (b == '\n') { hasHeader = true; break; }
+                if (headerBuf.size() > 1024) break;
+            }
+
+            String cameraId = null;
+            if (hasHeader) {
+                String headerLine = new String(headerBuf.toByteArray(), java.nio.charset.StandardCharsets.UTF_8).trim();
+                if (headerLine.startsWith("CAMERA:")) {
+                    cameraId = headerLine.substring("CAMERA:".length()).trim();
+                } else {
+                    // Not a recognized header: reset to start
+                    bin.reset();
+                }
+            } else {
+                // no header found, reset to start
+                bin.reset();
+            }
+
+            String baseName = "video_recibido_" + (cameraId != null ? cameraId + "_" : "") + timestamp;
+            String outName = baseName + ".h264";
+            Path outPath = Paths.get(outName);
+            try (FileOutputStream fos = new FileOutputStream(outPath.toFile())) {
+                System.out.println("Recibiendo stream" + (cameraId != null ? " from camera=" + cameraId : "") + "... saving to " + outPath);
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = bin.read(buffer)) != -1) {
+                    fos.write(buffer, 0, bytesRead);
+                }
+                fos.flush();
+            }
+
+            System.out.println("Stream finalizado, guardado en: " + outPath.toAbsolutePath());
+
+            // Encolar procesamiento asíncrono: conversión y persistencia en VideoService
+            try {
+                if (cameraId != null) {
+                    videoService.procesarYPersistirSegmento(outPath, cameraId, "Segment " + timestamp);
+                    System.out.println("Segmento enviado a VideoService para procesar: " + outPath);
+                } else {
+                    System.out.println("No se recibió cameraId en el header; no se persiste el video.");
+                    Files.deleteIfExists(outPath);
+                }
+            } catch (Exception ex) {
+                System.out.println("Error al encolar procesamiento del video: " + ex.getMessage());
+                try { Files.deleteIfExists(outPath); } catch (IOException ignore) {}
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Conversion ahora manejada por VideoService (asíncrono)
 }

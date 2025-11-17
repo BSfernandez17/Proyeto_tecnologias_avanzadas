@@ -31,6 +31,7 @@ public class JwtService {
         extraClaims.put("nombre", usuario.getNombre());
         extraClaims.put("rol", usuario.getRol().name());
         extraClaims.put("status", usuario.getStatus());
+        extraClaims.put("id", usuario.getId());
 
         return Jwts.builder()
                 .setClaims(extraClaims)

@@ -6,19 +6,15 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.util.Base64;
+
+import org.example.AppContext;
 import org.example.ConexionApi.UsuarioApi;
+import org.example.Model.Usuario;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import java.util.Base64;
 
 public class LoginView {
 
@@ -87,7 +83,7 @@ public class LoginView {
 
                 if (login(email, password)) {
                     frame.dispose();
-                    new PanelView();
+                    SwingUtilities.invokeLater(() -> new CameraListView());
                 } else {
                     JOptionPane.showMessageDialog(frame, "Credenciales inválidas", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -121,7 +117,7 @@ public class LoginView {
     try {
         UsuarioApi usuarioApi = new UsuarioApi();
         String response = usuarioApi.autenticarUsuario(email, password);
-
+        
         if (response == null) {
             JOptionPane.showMessageDialog(null, "No se recibió respuesta del servidor.", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
@@ -136,12 +132,20 @@ public class LoginView {
         try {
             String payload = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
             System.out.println("Payload decodificado: " + payload); // Debug
+            JsonObject payloadJson = JsonParser.parseString(payload).getAsJsonObject();
+           
 
             JsonObject tokenData = JsonParser.parseString(payload).getAsJsonObject();
             String status = tokenData.has("status") ? tokenData.get("status").getAsString() : null;
 
+            // Obtener el campo 'id' del payload decodificado
+            int idUsuario = payloadJson.has("id") ? payloadJson.get("id").getAsInt() : -1;
+            System.out.println("ID del usuario: " + idUsuario); // Debug
+            Usuario usuario = new Usuario(idUsuario, null, null, null, null, false, null); // Constructor con valores predeterminados
+            AppContext.getInstance().setUsuario(usuario);
             if ("true".equalsIgnoreCase(status)) {
                 UsuarioApi.setJwtToken(response);
+                AppContext.getInstance().setToken(response); // Actualizar el token en AppContext
                 return true;
             } else {
                 JOptionPane.showMessageDialog(null, "Acceso no autorizado por el administrador.", "Error", JOptionPane.ERROR_MESSAGE);

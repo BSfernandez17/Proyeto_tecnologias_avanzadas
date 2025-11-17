@@ -81,4 +81,12 @@ public class Usuario implements UserDetails {
     public Rol getRol() {
         return rol;
     }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public int getId() {
+        return id;
+    }
 }
