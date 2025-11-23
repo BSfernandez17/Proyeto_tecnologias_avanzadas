@@ -46,7 +46,7 @@ public class CameraManager {
             return;
         }
         try {
-            CamaraServicio servicio = new CamaraServicio(new CamaraApi(token));
+            CamaraServicio servicio = new CamaraServicio(new CamaraApi());
             java.util.List<org.example.Model.Camara> remote = servicio.obtenerCamarasPorUsuario(usuario.getId());
             cameras.clear();
             if (remote != null) {

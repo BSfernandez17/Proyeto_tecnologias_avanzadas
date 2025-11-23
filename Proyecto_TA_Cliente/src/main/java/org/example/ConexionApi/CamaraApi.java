@@ -28,36 +28,22 @@ public class CamaraApi implements CamaraRepositorio {
 
     private static final String API_URL = "http://"+ipServidor+":8080/api/camaras/";
     private static final Gson gson = new Gson();
-    private String token;
 
-    public CamaraApi(String token) {
-        this.token = token;
-    }
 
     @Override
     public Camara guardarCamara(Camara camara) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
 
-        final String jsonCamara = camara.toJson();
+        String jsonCamara = gson.toJson(camara);
+
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(API_URL + "guardarCamara"))
+                .uri(URI.create(API_URL+"guardarCamara"))
                 .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + token)
+                .header("Authorization", "Bearer " + org.example.AppContext.getInstance().getToken())
                 .POST(BodyPublishers.ofString(jsonCamara))
                 .build();
 
         HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-
-        System.out.println("Enviando datos de cámara: " + jsonCamara);
-        System.out.println("Encabezado de autorización: Bearer " + token);
-        System.out.println("Respuesta del servidor: " + response.body());
-        System.out.println("Código de estado: " + response.statusCode());
-        System.out.println("Cuerpo de la respuesta: " + response.body());
-
-        if (response.statusCode() != 201) {
-            System.err.println("Error al guardar cámara. Código de estado: " + response.statusCode());
-            return null;
-        }
 
         return gson.fromJson(response.body(), Camara.class);
     }
@@ -70,12 +56,15 @@ public class CamaraApi implements CamaraRepositorio {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-            .header("Accept", "application/json")
-            .header("Authorization", "Bearer " + token)
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + org.example.AppContext.getInstance().getToken())
                 .GET()
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        System.out.println("obtenerCamarasPorUsuario status=" + response.statusCode());
+        System.out.println("obtenerCamarasPorUsuario body=" + response.body());
 
         if (response.statusCode() == 200) {
             String json = response.body();
@@ -99,8 +88,8 @@ public class CamaraApi implements CamaraRepositorio {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Accept", "application/json")
-                .header("Authorization", "Bearer " + token)
-                .DELETE()
+            .header("Authorization", "Bearer " + org.example.AppContext.getInstance().getToken())
+            .DELETE()
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -118,7 +107,6 @@ public class CamaraApi implements CamaraRepositorio {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Accept", "application/json")
-                .header("Authorization", "Bearer " + token)
                 .GET()
                 .build();
 

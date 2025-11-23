@@ -27,6 +27,10 @@ public class AppContext implements IContext {
         this.usuario = usuario;
     }
 
+    public void clearToken() {
+        this.token = null;
+    }
+
     @Override
     public String getToken() {
         return token;

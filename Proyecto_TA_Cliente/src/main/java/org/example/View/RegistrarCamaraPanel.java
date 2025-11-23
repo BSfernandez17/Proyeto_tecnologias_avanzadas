@@ -96,7 +96,7 @@ public class RegistrarCamaraPanel extends JPanel {
         }
 
         try {
-            CamaraServicio camaraServicio = new CamaraServicio(new CamaraApi(token));
+            CamaraServicio camaraServicio = new CamaraServicio(new CamaraApi());
 
             // Obtener una instancia vacía desde el pool
             Camara pooled = camaraServicio.obtenerCamaraPooled();
@@ -104,9 +104,12 @@ public class RegistrarCamaraPanel extends JPanel {
             pooled.setNombre(name);
             pooled.setServerHost(host);
             pooled.setServerPort(port);
-            Usuario usuario = new Usuario(0, null, null, null, null, false, null); // Constructor con valores predeterminados
-            usuario.setId(AppContext.getInstance().getUsuario().getId());
-            pooled.setUsuarioId(usuario.getId()); // Enviar solo el ID del usuario
+            Usuario usuario = AppContext.getInstance().getUsuario();
+            if (usuario == null) {
+                JOptionPane.showMessageDialog(this, "No hay usuario en contexto. Inicia sesión primero.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            pooled.setUsuario(usuario);
 
             // Guardar en el repositorio (API) — el servicio liberará el objeto al final
             Camara persisted = camaraServicio.guardarCamara(pooled);

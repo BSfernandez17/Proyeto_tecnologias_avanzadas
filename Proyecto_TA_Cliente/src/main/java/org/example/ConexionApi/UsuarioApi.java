@@ -21,11 +21,7 @@ import com.google.gson.JsonObject;
 public class UsuarioApi implements UsuarioRepositorio {
     private static final String API_URL = "http://" + ipServidor + ":8080/auth/";
     private static final Gson gson = new Gson();
-    private static String jwtToken;
-
-    public static void setJwtToken(String token) {
-        jwtToken = token;
-    }
+    // JWT token is stored in AppContext; no local static needed
 
     @Override
     public Usuario obtenerUsuarioPorEmail(String email) throws Exception {
@@ -37,7 +33,7 @@ public class UsuarioApi implements UsuarioRepositorio {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Accept", "application/json")
-                .header("Authorization", "Bearer " + jwtToken) // Incluir el token JWT
+                .header("Authorization", "Bearer " + org.example.AppContext.getInstance().getToken()) // Incluir el token JWT
                 .GET()
                 .build();
 
@@ -65,7 +61,7 @@ public class UsuarioApi implements UsuarioRepositorio {
 
         // Crear la solicitud POST al backend
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(API_URL + "registro"))  // Asegúrate de que el endpoint coincida con el del backend
+            .uri(URI.create(API_URL + "registro"))  // Asegúrate de que el endpoint coincida con el del backend
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json))
                 .build();
@@ -105,6 +101,7 @@ public class UsuarioApi implements UsuarioRepositorio {
         System.out.println("Cuerpo de la respuesta: " + response.body());
 
         // Extraer el token del JSON de la respuesta
+        String jwtToken = null;
         try {
             String responseBody = response.body();
             JsonObject jsonResponse = gson.fromJson(responseBody, JsonObject.class);
@@ -115,6 +112,8 @@ public class UsuarioApi implements UsuarioRepositorio {
                 throw new IllegalArgumentException("El token recibido no tiene el formato JWT válido.");
             }
 
+            // Store token in AppContext
+            org.example.AppContext.getInstance().setToken(jwtToken);
             System.out.println("Token extraído y válido: " + jwtToken);
         } catch (Exception e) {
             System.err.println("Error al procesar la respuesta del servidor: " + e.getMessage());

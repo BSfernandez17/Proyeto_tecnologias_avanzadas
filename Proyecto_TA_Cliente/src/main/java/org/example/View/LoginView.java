@@ -79,7 +79,7 @@ public class LoginView {
                 String password = new String(passwordField.getPassword());
 
                 // Limpiar el token global antes de intentar autenticar
-                UsuarioApi.setJwtToken(null);
+                AppContext.getInstance().clearToken();
 
                 if (login(email, password)) {
                     frame.dispose();
@@ -99,12 +99,21 @@ public class LoginView {
 
                 if (nombre != null && email != null && contrasena != null) {
                     UsuarioApi usuarioApi = new UsuarioApi();
-                    boolean registroExitoso = usuarioApi.registrarUsuario(nombre, email, contrasena);
-
-                    if (registroExitoso) {
-                        JOptionPane.showMessageDialog(frame, "Registro exitoso. Ahora puede iniciar sesión.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(frame, "Error al registrar el usuario.", "Error", JOptionPane.ERROR_MESSAGE);
+                    try {
+                        Usuario nuevo = new Usuario.Builder()
+                                .nombre(nombre)
+                                .email(email)
+                                .contrasena(contrasena)
+                                .build();
+                        Usuario creado = usuarioApi.registrarUsuario(nuevo);
+                        if (creado != null) {
+                            JOptionPane.showMessageDialog(frame, "Registro exitoso. Ahora puede iniciar sesión.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(frame, "Error al registrar el usuario.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(frame, "Error al registrar el usuario: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        ex.printStackTrace();
                     }
                 }
             }
@@ -144,7 +153,6 @@ public class LoginView {
             Usuario usuario = new Usuario(idUsuario, null, null, null, null, false, null); // Constructor con valores predeterminados
             AppContext.getInstance().setUsuario(usuario);
             if ("true".equalsIgnoreCase(status)) {
-                UsuarioApi.setJwtToken(response);
                 AppContext.getInstance().setToken(response); // Actualizar el token en AppContext
                 return true;
             } else {
