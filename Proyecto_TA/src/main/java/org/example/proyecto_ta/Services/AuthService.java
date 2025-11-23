@@ -37,8 +37,8 @@ public class AuthService {
 
         String token = jwtService.getToken(user);
         return AuthResponse.builder()
-                .token(token)
-                .build();
+            .token(token)
+            .build();
     }
 
     public AuthResponse register(RegisterRequest request, String clienteIp) {
@@ -52,8 +52,9 @@ public class AuthService {
                 .build();
         System.out.println(usuario);
         usuarioRepositorio.save(usuario);
+        String token = jwtService.getToken(usuario);
         return AuthResponse.builder()
-                .token(jwtService.getToken(usuario))
-                .build();
+            .token(token)
+            .build();
     }
 }

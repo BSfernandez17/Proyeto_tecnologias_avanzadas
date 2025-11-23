@@ -7,35 +7,73 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [error, setError] = useState("");
+
+  // Limpia el error al cambiar email o contraseña
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    setError("");
+  };
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setContrasena(e.target.value);
+    setError("");
+  };
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth(); // viene del contexto global
+  const { login, logout } = useAuth(); // viene del contexto global
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+    // Siempre limpiar el token antes de intentar login
+    login("");
     try {
       const { token } = await loginUser({ email, contrasena });
-      login(token); // guarda el token en contexto + localStorage
+      if (!token) {
+        login("");
+        setError('No se recibió token en el login');
+        setLoading(false);
+        return;
+      }
+      // Decodificar el token JWT y validar el campo 'admin'
+      const decodeJwtPayload = (jwt: string) => {
+        try {
+          const base64Payload = jwt.split('.')[1];
+          const padded = base64Payload.padEnd(base64Payload.length + (4 - base64Payload.length % 4) % 4, '=');
+          const payload = JSON.parse(atob(padded.replace(/-/g, '+').replace(/_/g, '/')));
+          return payload;
+        } catch (e) {
+          console.error('Error decodificando JWT:', e);
+          return null;
+        }
+      };
+      const payload = decodeJwtPayload(token);
+      console.log('JWT payload:', payload);
+      if (!payload || payload.rol !== "ADMIN") {
+        login("");
+        setError('Solo los usuarios ADMIN pueden iniciar sesión.');
+        setLoading(false);
+        return;
+      }
+      // Login exitoso: limpiar error y actualizar contexto
+      setError("");
+      login(token);
+      setEmail("");
+      setContrasena("");
       navigate("/home");
     } catch (err: unknown) {
+      login("");
       console.error("Error en login:", err);
       const defaultMsg = "Credenciales incorrectas o error en el servidor.";
-
       type ErrorResponse = { response?: { data?: { message?: string } } };
-
       const isErrorResponse = (e: unknown): e is ErrorResponse =>
         typeof e === "object" && e !== null && "response" in e;
-
       let msg = defaultMsg;
-
       if (isErrorResponse(err) && err.response?.data?.message) {
         msg = err.response.data.message;
       } else if (err instanceof Error && err.message) {
         msg = err.message;
       }
-
       setError(msg);
     } finally {
       setLoading(false);
@@ -54,28 +92,28 @@ export default function LoginPage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Correo
             </label>
-            <input
-              type="email"
-              placeholder="tucorreo@ejemplo.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
+              <input
+                type="email"
+                placeholder="tucorreo@ejemplo.com"
+                value={email}
+                onChange={handleEmailChange}
+                required
+                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Contraseña
             </label>
-            <input
-              type="password"
-              placeholder="Contraseña"
-              value={contrasena}
-              onChange={(e) => setContrasena(e.target.value)}
-              required
-              className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
+              <input
+                type="password"
+                placeholder="Contraseña"
+                value={contrasena}
+                onChange={handlePasswordChange}
+                required
+                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              />
           </div>
 
           <div>
