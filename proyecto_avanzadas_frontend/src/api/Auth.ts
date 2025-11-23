@@ -15,14 +15,6 @@ export interface CrearUsuarioPayload {
 
 export interface AuthResponse {
   token: string;
-  usuario: {
-    id: number;
-    nombre: string;
-    email: string;
-    rol: 'ADMIN' | 'USER';
-    status: boolean;
-    ip: string;
-  };
 }
 
 // Tipo seguro para la respuesta de error del backend
@@ -47,6 +39,7 @@ export const loginUser = async (
       `${API_URL}/login`,
       credentials
     );
+  
     return response.data;
   } catch (error: unknown) {
     // ✅ Manejo de error claro y seguro con axios

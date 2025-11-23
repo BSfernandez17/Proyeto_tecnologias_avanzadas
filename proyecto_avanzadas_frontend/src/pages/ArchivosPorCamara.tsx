@@ -1,51 +1,37 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-// import { obtenerArchivosPorCamara } from "../api/Archivos.api"; // Asume que tienes esta función en tu API
+import { obtenerImagenesPorCamara, obtenerVideosPorCamara } from "../api/Archivos.api";
+import type { Imagen, Video } from "../api/Archivos.api";
+import { useAuth } from "../context/AuthContex";
 
-interface Archivo {
-  id: string;
-  nombre: string;
-  tipo: string; // "video" | "imagen"
-  tamano: number;
-  fecha: string;
-  url: string;
-}
+type Archivo =
+  | (Imagen & { tipo: "imagen" })
+  | (Video & { tipo: "video" });
 
 const ArchivosPorCamara: React.FC = () => {
   const { camaraId } = useParams<{ camaraId: string }>();
+  const { token } = useAuth();
   const [archivos, setArchivos] = useState<Archivo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!camaraId) return;
+    if (!camaraId || !token) return;
     setLoading(true);
     setError(null);
-    // Simulación de llamada a la API
-    // Reemplaza esto por tu llamada real a la API
-    setTimeout(() => {
-      setArchivos([
-        {
-          id: "1",
-          nombre: "video1.mp4",
-          tipo: "video",
-          tamano: 1048576,
-          fecha: "2025-11-22T10:00:00Z",
-          url: "#"
-        },
-        {
-          id: "2",
-          nombre: "imagen1.jpg",
-          tipo: "imagen",
-          tamano: 204800,
-          fecha: "2025-11-22T11:00:00Z",
-          url: "#"
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
-    // obtenerArchivosPorCamara(camaraId).then(setArchivos).catch(e => setError(e.message)).finally(() => setLoading(false));
-  }, [camaraId]);
+    Promise.all([
+      obtenerImagenesPorCamara(camaraId, token),
+      obtenerVideosPorCamara(camaraId, token)
+    ])
+      .then(([imagenes, videos]) => {
+        setArchivos([
+          ...imagenes.map(img => ({ ...img, tipo: "imagen" as const })),
+          ...videos.map(vid => ({ ...vid, tipo: "video" as const }))
+        ]);
+      })
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false));
+  }, [camaraId, token]);
 
   return (
     <div className="p-4">
@@ -73,7 +59,6 @@ const ArchivosPorCamara: React.FC = () => {
                 <td className="border px-2 py-1">{new Date(archivo.fecha).toLocaleString()}</td>
                 <td className="border px-2 py-1">
                   <a href={archivo.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Ver</a>
-                  {/* Puedes agregar botón de descarga aquí */}
                 </td>
               </tr>
             ))}

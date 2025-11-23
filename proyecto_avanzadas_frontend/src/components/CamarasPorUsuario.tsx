@@ -56,6 +56,14 @@ export const CamarasPorUsuario: React.FC<CamarasPorUsuarioProps> = ({ id }) => {
               <div>IP: {c.ip}</div>
               <div>Ubicación: {c.ubicacion ?? '-'}</div>
               <div>Estado: {c.estado ? 'Activo' : 'Inactivo'}</div>
+              <div className="mt-2">
+                <a
+                  href={`/admin/archivos-camara/${c.id}`}
+                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
+                >
+                  Ver archivos
+                </a>
+              </div>
             </li>
           ))}
         </ul>

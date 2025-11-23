@@ -38,12 +38,26 @@ export const ListaUsuarios = () => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-gray-800">Usuarios</h2>
-        <Link
-          to="/usuarios/registrar"
-          className="inline-flex items-center px-3 py-2 rounded-md bg-indigo-600 text-white text-sm hover:bg-indigo-700"
-        >
-          Registrar usuario
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            to="/usuarios/registrar"
+            className="inline-flex items-center px-3 py-2 rounded-md bg-indigo-600 text-white text-sm hover:bg-indigo-700"
+          >
+            Registrar usuario
+          </Link>
+          <Link
+            to="/admin/informe-camara-mas-archivos"
+            className="inline-flex items-center px-3 py-2 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700"
+          >
+            Informe cámaras con más archivos
+          </Link>
+          <Link
+            to="/admin/archivos-filtrados"
+            className="inline-flex items-center px-3 py-2 rounded-md bg-green-600 text-white text-sm hover:bg-green-700"
+          >
+            Archivos filtrados
+          </Link>
+        </div>
       </div>
       {loading ? (
         <div className="flex items-center justify-center p-4">
